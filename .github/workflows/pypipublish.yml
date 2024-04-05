@@ -1,0 +1,61 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Publish Python 🐍 distribution 📦 to PyPI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+        # cache: pip
+        # cache-dependency-path: '**/pyproject.toml'
+    - name: testing package
+      run: |
+        python -m pip install --upgrade pip
+        python3 -m pip install setuptools wheel twine
+        python3 -m pip install --upgrade build
+        python3 -m build
+        cd dist/
+        python3 -m pip install ignutils-0.0.1.tar.gz
+        cd ../test/
+        python3 test_json.py       
+          
+
+  # deploy:
+  #   needs: test
+  #   runs-on: ubuntu-latest
+  #   environment: release
+  #   permissions:
+  #     id-token: write
+  #   # needs: [test]
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Set up Python
+  #     uses: actions/setup-python@v5
+  #     with:
+  #       python-version: '3.11'
+  #       cache: pip
+  #       cache-dependency-path: '**/pyproject.toml'
+  #   - name: Install dependencies
+  #     run: |
+  #       pip install setuptools wheel build
+  #   - name: Build
+  #     run: |
+  #       python -m build
+  #   - name: Publish
+  #     uses: pypa/gh-action-pypi-publish@release/v1
